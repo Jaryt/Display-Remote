@@ -1,36 +1,67 @@
 const express = require('express');
 const cors = require('cors');
-const bodyParser = require('body-parser');
-const morgan = require('morgan');
-
+const monk = require('monk');
+const multer = require('multer');
+const db = require('./db/connection');
+const fs = require('fs');
 const app = express();
 
-app.use(morgan('tiny'));
-app.use(cors());
-app.use(bodyParser.json());
-
-app.get("/", (req, res) => {
-    res.json({
-        message: 'Behold The MEVN Stack!'
-    });
-})
-
-app.get('/messages', (req, res) => {
-    // messages.getAll().then((messages) => {
-    //     res.json(messages);
-    // });
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, './assets/media')
+  },
+  filename: (req, file, cb) => {
+    cb(null, file.originalname)
+  }
 });
 
-app.post('/messages', (req, res) => {
-    // console.log(req.body);
-    // messages.create(req.body).then((message) => {
-    //     res.json(message);
-    // }).catch((error) => {
-    //     res.status(500);
-    //     res.json(error);
-    // });
+const upload = multer({ storage: storage })
+
+app.use(express.urlencoded({ extended: true }))
+app.use(express.json());
+app.use(cors());
+
+const playback = {
+  playing: true,
+  index: 0,
+};
+
+app.get("/playback", (req, res) => {
+  res.json(playback);
+})
+
+const getMedia = () => {
+  fs.readdir('./assets/media', files => {
+    return files;
+  });
+}
+
+app.get('/available', (req, res) => {
+  res.json(JSON.stringify(getMedia()));
+});
+
+
+app.post('/upload', upload.array('files', 12), (req, res) => {
+  res.status(200);
+  res.json(JSON.stringify(getMedia()));
+})
+
+const sequences = db.get('sequence');
+
+app.get('/sequence', (req, res) => {
+  sequences.getAll().then((sequence) => {
+      res.json(sequence);
+      res.status(200);
+  });
+});
+
+app.post('/sequence', (req, res) => {
+  sequences.create(req.body).then(sequence => {
+    res.json(sequence);
+    res.status(200);
+  })
 });
 
 app.listen(5000, () => {
-    console.log("App is listening on Port 5000")
+  console.log('Starting server...');
 })

@@ -5,6 +5,7 @@ import Home from './components/Home.vue'
 import Display from './components/Display.vue'
 import Theatre from './components/Theatre.vue'
 import Actions from './components/Actions.vue'
+import Upload from './components/Upload.vue'
 import Editor from './components/Editor.vue'
 import Timeline from './components/Timeline.vue'
 import VueRouter from 'vue-router'
@@ -14,6 +15,7 @@ Vue.use(VueRouter);
 Vue.component('ctrlr-display', Display); // Main display view, can be fit to any container
 Vue.component('ctrlr-actions', Actions)
 Vue.component('ctrlr-timeline', Timeline); // Allows for precise changes to display data
+Vue.component('ctrlr-upload', Upload); 
 Vue.component('ctrlr-editor', Editor); // 
 Vue.config.productionTip = false
 
@@ -27,9 +29,9 @@ const store = new Vuex.Store({
     timeline: {
       id: 0,
       media: [
-        { path: "./image2.jpg", length: 2000 },
-        { path: "./dog.png", length: 5000 },
-        { path: "./logo.png", length: 1500 }
+        // { path: "./image2.jpg", length: 2000 },
+        // { path: "./dog.png", length: 5000 },
+        // { path: "./logo.png", length: 1500 }
       ],
       title: 'An example timeline!'
     },
