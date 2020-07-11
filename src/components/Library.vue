@@ -33,7 +33,7 @@ export default {
     };
   },
   updated() {
-    this.syncLibrary();
+    setTimeout(this.syncLibrary, 1000);
   },
   methods: {
     syncLibrary() {
@@ -45,7 +45,7 @@ export default {
           let wholeLib = JSON.parse(available);
 
           this.library = wholeLib.filter(media => !sequence.includes(media));
-        }).catch(e => console.log(e));
+        }).catch(e =>console.log(e));
     },
     getImage(path) {
       return images("./" + path);

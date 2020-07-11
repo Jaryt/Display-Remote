@@ -1,30 +1,22 @@
 <template>
-  <ctrlr-display ref="display"></ctrlr-display>
+  <div class="container">
+    <ctrlr-display ref="display" id="display"></ctrlr-display>
+  </div>
 </template>
 
-<script>
-export default {
-  mounted() {
-    const play = () => {
-      const timeline = this.$store.state.timeline;
-      const playback = this.$store.state.playback;
-
-      this.$store.dispatch("update", { seek: 1, play });
-
-      this.$refs.display.update(timeline, playback);
-    };
-
-    play();
-  }
-};
-</script>
-
 <style scoped>
-html * {
+.container {
+  width: 100%;
+  height: 100%;
   background-color: black;
+  position: absolute;
 }
 
 #display {
-  height: 100%;
+  position: absolute;
+  height: inherit;
+  left: 0;
+  right: 0;
+  object-fit: scale-down;
 }
 </style>

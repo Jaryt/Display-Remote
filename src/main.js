@@ -93,7 +93,6 @@ const store = new Vuex.Store({
       playback.lastUpdate = Date.now();
     },
     updateMedia(state, media) {
-      console.log(media);
       state.media = media;
     }
   },

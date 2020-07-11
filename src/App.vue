@@ -15,11 +15,6 @@ export default {
         .then(res => res.json())
         .then(media => this.$store.commit("updateMedia", media[0].media));
     },
-    loadPlayback() {
-      fetch("http://localhost:5000/playback")
-        .then(res => res.json())
-        .then(playback => this.$store.commit("updatePlayback", playback));
-    }
   },
 };
 </script>

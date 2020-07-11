@@ -33,7 +33,7 @@ export default {
 
 <style scoped>
 #actions {
-  max-width: 80%;
+  max-width: 100%;
   margin: 0 auto;
 }
 
@@ -50,6 +50,6 @@ button {
 }
 
 img {
-  width: 90%;
+  width: 50%;
 }
 </style>

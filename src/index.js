@@ -28,8 +28,30 @@ const playback = {
   index: 0,
 };
 
+const timeout = {
+  current: null,
+  lastUpdate: Date.now(),
+}
+
 app.get("/playback", (req, res) => {
   res.json(playback);
+  res.status(200);
+})
+
+app.post("/playback", (req, res) => {
+  let input = req.body;
+
+  if (input.playing !== undefined) {
+    playback.playing = input.playing;
+
+    
+  }
+
+  if (input.seek) {
+
+  }
+
+  res.status(200);
 })
 
 const getMedia = () => {
@@ -41,7 +63,6 @@ const getMedia = () => {
 app.get('/available', (req, res) => {
   res.json(JSON.stringify(getMedia()));
 });
-
 
 app.post('/upload', upload.array('files', 12), (req, res) => {
   res.status(200);
@@ -67,4 +88,18 @@ app.post('/sequence', (req, res) => {
 
 app.listen(5000, () => {
   console.log('Starting server...');
+
+  const play = () => {
+    let media = getMedia().length;
+
+
+    playback.index = ++playback.index % media;
+
+    console.log(playback.index)
+
+    timeout.current = setTimeout(play, 15000);
+    timeout.lastUpdate = Date.now();
+  }
+
+  play();
 })

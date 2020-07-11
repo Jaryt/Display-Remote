@@ -60,7 +60,7 @@ export default {
 <style scoped>
 #timeline {
   width: 100%;
-  min-height: 40vh;
+  min-height: 50vh;
   background: #888888;
 }
 

@@ -61,12 +61,12 @@ export default {
 
 #display {
   position: relative;
-  height: 25vh;
+  height: 35vh;
 }
 
 #preview {
-  width: 100%;
-  height: 40vh;
+  width: 80%;
+  height: 50vh;
   margin: 0 auto;
   overflow: hidden;
 }
