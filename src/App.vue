@@ -7,24 +7,20 @@
 <script>
 export default {
   mounted() {
-    // this.loadSequence();
+    this.loadSequence();
   },
   methods: {
     loadSequence() {
-      fetch("http://localhost:5000/sequence").then(res => {
-        res.json().then(media => {
-          this.$store.state.timeline.media = JSON.parse(media) || [];
-        });
-      });
+      fetch("http://localhost:5000/sequence")
+        .then(res => res.json())
+        .then(media => this.$store.commit("updateMedia", media[0].media));
     },
     loadPlayback() {
-      fetch("http://localhost:5000/playback").then(res => {
-        res.json().then(playback => {
-          this.$store.state.timeline.playback = JSON.parse(playback) || [];
-        });
-      });
+      fetch("http://localhost:5000/playback")
+        .then(res => res.json())
+        .then(playback => this.$store.commit("updatePlayback", playback));
     }
-  }
+  },
 };
 </script>
 

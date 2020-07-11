@@ -1,9 +1,15 @@
 <template>
   <div id="library">
-    <ctrlr-upload :complete=syncLibrary />
-    <draggable :list="library" group="media" draggable=".item">
+    <ctrlr-upload :complete="syncLibrary" />
+    <draggable
+      id="library"
+      :list="library"
+      @end="e => { update(e, 'library') }"
+      group="media"
+      draggable=".item"
+    >
       <div class="item" v-for="element in library" :key="element">
-          <img :src="getImage(element)" />
+        <img :src="getImage(element)" />
       </div>
     </draggable>
   </div>
@@ -16,31 +22,35 @@ const images = require.context("../assets/media/");
 
 export default {
   props: {
-    sequence: Array
+    update: Function
   },
   components: {
     draggable
   },
   data() {
     return {
-      library: []
+      library: this.syncLibrary()
     };
   },
-  mounted() {
+  updated() {
     this.syncLibrary();
   },
   methods: {
     syncLibrary() {
-      fetch("http://192.168.1.4:5000/available").then(res => {
-        res.json().then(library => {
-          this.library = JSON.parse(library);
-        });
-      });
+      let sequence = this.$store.state.media;
+
+      fetch("http://localhost:5000/available")
+        .then(res => res.json())
+        .then(available => {
+          let wholeLib = JSON.parse(available);
+
+          this.library = wholeLib.filter(media => !sequence.includes(media));
+        }).catch(e => console.log(e));
     },
     getImage(path) {
       return images("./" + path);
-    },
-  }
+    }
+  },
 };
 </script>
 

@@ -1,18 +1,27 @@
 <template>
   <div id="display">
-    <img class="buffer" ref="buffer0" />
+    <div class="buffer" ref="buffer0">
+      <img src="">
+      
+    </div>
+
     <img class="buffer" ref="buffer1" />
   </div>
 </template>
 
 <script>
-const images = require.context("../assets/media/", false, /\.(png|jpe?g|gif)$/i);
+const images = require.context(
+  "../assets/media/",
+  false,
+  /\.(png|jpe?g|gif)$/i
+);
 
 export default {
   data() {
-    return {};
+    return {
+      activeBuffer: this.$refs["buffer0"]
+    };
   },
-  props: {},
   mounted() {
     this.$refs.buffer1.classList.toggle("fade");
   },

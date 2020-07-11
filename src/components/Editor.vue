@@ -2,8 +2,8 @@
   <div class="editor" align="center">
     <slot />
     <br />
-    <ctrlr-library :hidden="!editing" ref="library"></ctrlr-library>
-    <ctrlr-timeline></ctrlr-timeline>
+    <ctrlr-library :update="update" :hidden="!editing" ref="library"></ctrlr-library>
+    <ctrlr-timeline :update="update"></ctrlr-timeline>
   </div>
 </template>
 
@@ -11,6 +11,19 @@
 export default {
   props: {
     editing: Boolean
+  },
+  methods: {
+    update(e, a) {
+      let dest = e.to.id;
+
+      if (a === 'library' && dest === 'sequence') {
+        console.log('a')
+      } else if (a === 'sequence' && dest === 'library') {
+        console.log('b')
+      } else {
+        // order change
+      }
+    }
   }
 };
 </script>

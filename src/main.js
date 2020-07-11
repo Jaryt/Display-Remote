@@ -31,17 +31,7 @@ const routes = [
 
 const store = new Vuex.Store({
   state: {
-    timeline: {
-      id: 0,
-      media: [
-        { path: "./20200705_142147.jpg", length: 2000 },
-        { path: "./Snapchat-1850851168.jpg", length: 5000 },
-      ]
-    },
     media: [
-      { path: "./20200705_142147.jpg", length: 2000 },
-      { path: "./Snapchat-1850851168.jpg", length: 5000 },
-      // { path: "./logo.png", length: 1500 }
     ],
     playback: {
       playing: true,
@@ -103,7 +93,8 @@ const store = new Vuex.Store({
       playback.lastUpdate = Date.now();
     },
     updateMedia(state, media) {
-      state.timeline.media = media;
+      console.log(media);
+      state.media = media;
     }
   },
   actions: {

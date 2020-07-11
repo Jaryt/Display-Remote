@@ -13,7 +13,7 @@ const storage = multer.diskStorage({
     cb(null, media)
   },
   filename: (req, file, cb) => {
-    cb(null, file.originalname)
+    cb(null, file.originalname.toLowerCase())
   }
 });
 
@@ -58,10 +58,11 @@ app.get('/sequence', (req, res) => {
 });
 
 app.post('/sequence', (req, res) => {
+  sequences.drop();
   sequences.insert(req.body).then(sequence => {
     res.json(sequence);
     res.status(200);
-  })
+  }).catch(e => console.log(e));
 });
 
 app.listen(5000, () => {
