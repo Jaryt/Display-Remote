@@ -32,7 +32,7 @@ export default {
       this.status = "Uploading... Please wait.";
 
       axios
-        .post("http://localhost:5000/upload", formData, {
+        .post("http://192.168.1.4:5000/upload", formData, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -44,7 +44,7 @@ export default {
           }, 3000);
           this.complete();
         })
-        .catch(e => console.log(e));
+        .catch(e => this.status = e);
     },
 
     onSelect() {

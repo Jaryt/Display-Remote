@@ -7,17 +7,22 @@ import Theatre from './components/Theatre.vue'
 import Actions from './components/Actions.vue'
 import Upload from './components/Upload.vue'
 import Editor from './components/Editor.vue'
+import Library from './components/Library.vue'
 import Timeline from './components/Timeline.vue'
 import VueRouter from 'vue-router'
+import vuetify from '@/plugins/vuetify'
 
 Vue.use(Vuex);
 Vue.use(VueRouter);
+
 Vue.component('ctrlr-display', Display); // Main display view, can be fit to any container
 Vue.component('ctrlr-actions', Actions)
 Vue.component('ctrlr-timeline', Timeline); // Allows for precise changes to display data
-Vue.component('ctrlr-upload', Upload); 
+Vue.component('ctrlr-upload', Upload);
+Vue.component('ctrlr-library', Library);
 Vue.component('ctrlr-editor', Editor); // 
-Vue.config.productionTip = false
+Vue.config.productionTip = false;
+Vue.config.devtools = true;
 
 const routes = [
   { path: '/', component: Home },
@@ -29,12 +34,15 @@ const store = new Vuex.Store({
     timeline: {
       id: 0,
       media: [
-        // { path: "./image2.jpg", length: 2000 },
-        // { path: "./dog.png", length: 5000 },
-        // { path: "./logo.png", length: 1500 }
-      ],
-      title: 'An example timeline!'
+        { path: "./20200705_142147.jpg", length: 2000 },
+        { path: "./Snapchat-1850851168.jpg", length: 5000 },
+      ]
     },
+    media: [
+      { path: "./20200705_142147.jpg", length: 2000 },
+      { path: "./Snapchat-1850851168.jpg", length: 5000 },
+      // { path: "./logo.png", length: 1500 }
+    ],
     playback: {
       playing: true,
       index: 0,
@@ -113,5 +121,6 @@ const router = new VueRouter({ routes });
 new Vue({
   store,
   router,
+  vuetify,
   render: (h) => h(App),
 }).$mount('#app')

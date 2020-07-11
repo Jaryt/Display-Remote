@@ -2,13 +2,15 @@ const express = require('express');
 const cors = require('cors');
 const monk = require('monk');
 const multer = require('multer');
-const db = require('./db/connection');
 const fs = require('fs');
+
 const app = express();
+const db = monk('localhost:27017')
+const media = `${__dirname}/assets/media`
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, './assets/media')
+    cb(null, media)
   },
   filename: (req, file, cb) => {
     cb(null, file.originalname)
@@ -31,9 +33,9 @@ app.get("/playback", (req, res) => {
 })
 
 const getMedia = () => {
-  fs.readdir('./assets/media', files => {
-    return files;
-  });
+  const files = fs.readdirSync(media);
+
+  return files;
 }
 
 app.get('/available', (req, res) => {
@@ -49,14 +51,14 @@ app.post('/upload', upload.array('files', 12), (req, res) => {
 const sequences = db.get('sequence');
 
 app.get('/sequence', (req, res) => {
-  sequences.getAll().then((sequence) => {
-      res.json(sequence);
-      res.status(200);
+  sequences.find().then((sequence) => {
+    res.json(sequence);
+    res.status(200);
   });
 });
 
 app.post('/sequence', (req, res) => {
-  sequences.create(req.body).then(sequence => {
+  sequences.insert(req.body).then(sequence => {
     res.json(sequence);
     res.status(200);
   })

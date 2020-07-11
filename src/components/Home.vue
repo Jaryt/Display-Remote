@@ -1,11 +1,12 @@
 <template>
   <div id="display-remote">
-    <div id="preview">
+    <div :hidden="editing" id="preview">
       <ctrlr-display ref="display"></ctrlr-display>
       <ctrlr-actions @on-seek="onSeek"></ctrlr-actions>
     </div>
-   
-    <ctrlr-editor></ctrlr-editor>
+    <ctrlr-editor :editing="editing">
+      <v-btn @click="editing = !editing">Toggle Sequence Editor</v-btn>
+    </ctrlr-editor>
   </div>
 </template>
 
@@ -13,36 +14,36 @@
 export default {
   mounted() {
     const play = () => {
-      const timeline = this.$store.state.timeline;
-      const playback = this.$store.state.playback;
-
-      this.$store.dispatch("update", { seek: 1, play });
-
-      this.$refs.display.update(timeline, playback);
+      // const timeline = this.$store.state.timeline;
+      // const playback = this.$store.state.playback;
+      // this.$store.dispatch("update", { seek: 1, play });
+      // this.$refs.display.update(timeline, playback);
     };
 
     play();
   },
+  data() {
+    return {
+      editing: false
+    };
+  },
   methods: {
-    onSeek(num) {
-      const payload = {
-        seek: num
-      };
-
-      this.$store.dispatch("update", payload);
-
-      if (num != 0) {
-        const timeline = this.$store.state.timeline;
-        const playback = this.$store.state.playback;
-
-        this.$refs.display.update(timeline, playback);
-      }
+    onSeek() {
+      // const payload = {
+      //   seek: num
+      // };
+      // this.$store.dispatch("update", payload);
+      // if (num != 0) {
+      //   const timeline = this.$store.state.timeline;
+      //   const playback = this.$store.state.playback;
+      //   // this.$refs.display.update(timeline, playback);
+      // }
     }
   },
   computed: {
     media: {
       get() {
-        return this.$store.state.timeline.media;
+        return this.$store.state.media;
       },
       set(media) {
         this.$store.commit("updateMedia", media);
@@ -60,18 +61,14 @@ export default {
 
 #display {
   position: relative;
-  height: 35vh;
+  height: 25vh;
 }
 
 #preview {
   width: 100%;
-  height: 50vh;
+  height: 40vh;
   margin: 0 auto;
-  background: black;
   overflow: hidden;
 }
 
-.item {
-  background: red;
-}
 </style>
