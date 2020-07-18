@@ -25,6 +25,7 @@ export default {
       index: 0,
       playing: false,
       curType: "",
+      changeNum: 0,
       activeBuffer: Object,
       otherBuffer: Object
     };
@@ -40,7 +41,7 @@ export default {
       setTimeout(play, 1000);
     };
 
-    setTimeout(play, 5000);
+    setTimeout(play, 2000);
   },
   methods: {
     update() {
@@ -54,6 +55,12 @@ export default {
       }
     },
     playbackUpdate(playback) {
+      if (playback.changeNum != this.changeNum) {
+        get("sequence", res => {
+          this.$store.commit("updateSequence", res.sequence || []);
+        });
+      }
+
       let sequence = this.$store.state.sequence;
 
       if (
@@ -94,6 +101,7 @@ export default {
       this.curType = mediaType;
       this.curIndex = playback.index;
       this.playing = playback.playing;
+      this.changeNum = playback.changeNum;
       this.buffer++;
     }
   }

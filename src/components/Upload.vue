@@ -44,7 +44,7 @@ export default {
           setTimeout(() => {
             this.status = "Upload media:";
           }, 10000);
-          this.complete();
+          setTimeout(this.complete, 1000);
         },
         undefined
       );

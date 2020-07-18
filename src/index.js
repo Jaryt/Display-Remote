@@ -23,7 +23,7 @@ app.use(express.urlencoded({ extended: true }))
 app.use(express.json());
 app.use(cors());
 
-const fixedDuration = 1000;
+const fixedDuration = 2000;
 
 const play = () => {
   playback.index = (++playback.index) % playback.count;
@@ -36,7 +36,8 @@ const play = () => {
 const playback = {
   playing: true,
   index: 0,
-  count: 0
+  count: 0,
+  changeNum: 0,
 };
 
 const timeout = {
@@ -124,6 +125,8 @@ app.get('/sequence', (req, res) => {
 app.post('/sequence', (req, res) => {
   sequences.drop();
   sequences.insert(req.body).then(newSequence => {
+    playback.changeNum++;
+
     setSequence(newSequence);
 
     res.json(newSequence.sequence);
@@ -132,7 +135,7 @@ app.post('/sequence', (req, res) => {
 });
 
 app.listen(5000, () => {
-  sequences.find().then(sequence => {
+  sequences.findOne({}).then(sequence => {
     setSequence(sequence ? sequence[0] : { sequence: [] })
   })
     .catch(e => console.log(e));
