@@ -63,9 +63,15 @@ export function post(location, obj, retrieved, type) {
     body: obj,
     headers: {
       'Accept': 'application/json',
-      'Content-Type': type
     }
   };
 
-  fetch(`http://localhost:5000/${location}`, options).then(res => res.json()).then(retrieved).catch(console.log);
+  if (type) {
+    options.headers['Content-Type'] = type;
+  }
+
+  fetch(`http://localhost:5000/${location}`, options)
+    .then(res => res.json())
+    .then(retrieved)
+    .catch(e => console.log(e));
 }

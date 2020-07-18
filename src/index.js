@@ -44,31 +44,44 @@ const timeout = {
   lastUpdate: Date.now(),
 }
 
+app.get("/toggle", (req, res) => {
+  if (playback.playing && timeout.current != undefined) {
+    clearTimeout(timeout.current);
+
+    let now = Date.now();
+
+    timeout.remaining -= (now - timeout.lastUpdate);
+    timeout.lastUpdate = now;
+  } else {
+    timeout.current = setTimeout(play, timeout.remaining);
+  }
+
+  playback.playing = !playback.playing;
+
+  res.json(playback);
+  res.status(200);
+})
+
 app.get("/playback", (req, res) => {
   res.json(playback);
   res.status(200);
 })
 
-app.post("/playback", (req, res) => {
-  let input = req.body;
+app.post("/seek", (req, res) => {
+  playback.index = (playback.index + req.body.offset) % playback.count;
 
-  if (input.playing !== undefined) {
-    playback.playing = input.playing;
-
-    if (playback.playing && timeout.current != undefined) {
-      clearTimeout(timeout.current);
-
-      let now = Date.now();
-
-      timeout.remaining -= (now - timeout.lastUpdate);
-      timeout.lastUpdate = now;
-    } else {
-      timeout.current = setTimeout(play, timeout.remaining);
-    }
+  if (playback.index < 0) {
+    playback.index = playback.count - 1;
   }
 
-  if (input.index != playback.index) {
+  if (timeout.current) {
+    clearTimeout(timeout.current);
+  }
 
+  playback.remaining = fixedDuration;
+
+  if (playback.playing) {
+    timeout.current = setTimeout(play, fixedDuration);
   }
 
   res.json(playback);

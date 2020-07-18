@@ -15,7 +15,7 @@
 <script>
 import pause from "../assets/controls/pause.png";
 import play from "../assets/controls/play.png";
-const { post } = require("../main.js");
+const { get, post } = require("../main.js");
 
 export default {
   data() {
@@ -25,25 +25,12 @@ export default {
   },
   methods: {
     togglePause() {
-      post("playback", { playing: false }, response => {
-        this.playing = response.playing ? play : pause;
+      get("toggle", res => {
+        this.playing = res.playing ? play : pause;
       });
-      // const options = {
-      //   method: "POST",
-      //   body: JSON.stringify({
-
-      //   }),
-      //   headers: {
-      //     "Content-Type": "application/json"
-      //   }
-      // };
-
-      // this.playing =     fetch("http://localhost:5000/playback", options)
-      //   .then(res => res.json())
-      //   .then(playback => {;
     },
     seek(offset) {
-      console.log(offset);
+      post("seek", JSON.stringify({ offset }), undefined, "application/json");
     }
   }
 };

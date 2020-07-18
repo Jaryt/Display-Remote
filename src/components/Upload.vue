@@ -37,14 +37,16 @@ export default {
       post(
         "upload",
         formData,
-        () => {
+        (e) => {
+          console.log(e);
+
           this.status = "Upload complete.";
           setTimeout(() => {
             this.status = "Upload media:";
           }, 10000);
           this.complete();
         },
-        "multipart/form-data"
+        undefined
       );
     },
 

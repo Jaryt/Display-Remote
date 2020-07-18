@@ -42,12 +42,10 @@ export default {
       post(
         "sequence",
         JSON.stringify({ sequence: this.sequence }),
-        res => {
-          console.log(res);
-        },
+        undefined,
         "application/json"
       );
-      
+
       this.$store.commit("setTimelineDirty", false);
     }
   },

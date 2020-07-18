@@ -2,7 +2,11 @@
   <div id="display-remote">
     <div :hidden="editing" id="preview">
       <ctrlr-display ref="display"></ctrlr-display>
-      <ctrlr-actions @on-seek="onSeek"></ctrlr-actions>
+      <ctrlr-actions v-if="controls"></ctrlr-actions>
+      <div v-else>
+        <h1>Controller disabled!</h1>
+        <p>Please save changes to timeline to continue controlling main display.</p>
+      </div>
     </div>
     <ctrlr-editor :editing="editing">
       <button @click="editing = !editing">Toggle Sequence Editor</button>
@@ -12,42 +16,14 @@
 
 <script>
 export default {
-  mounted() {
-    const play = () => {
-      // const timeline = this.$store.state.timeline;
-      // const playback = this.$store.state.playback;
-      // this.$store.dispatch("update", { seek: 1, play });
-      // this.$refs.display.update(timeline, playback);
-    };
-
-    play();
-  },
   data() {
     return {
       editing: false
     };
   },
-  methods: {
-    onSeek() {
-      // const payload = {
-      //   seek: num
-      // };
-      // this.$store.dispatch("update", payload);
-      // if (num != 0) {
-      //   const timeline = this.$store.state.timeline;
-      //   const playback = this.$store.state.playback;
-      //   // this.$refs.display.update(timeline, playback);
-      // }
-    }
-  },
   computed: {
-    media: {
-      get() {
-        return this.$store.state.media;
-      },
-      set(media) {
-        this.$store.commit("updateMedia", media);
-      }
+    controls() {
+      return !this.$store.state.isDirty;
     }
   }
 };
@@ -70,5 +46,4 @@ export default {
   margin: 0 auto;
   overflow: hidden;
 }
-
 </style>
