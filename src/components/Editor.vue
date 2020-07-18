@@ -16,13 +16,15 @@ export default {
     update(e, a) {
       let dest = e.to.id;
 
-      if (a === 'library' && dest === 'sequence') {
-        console.log('a')
-      } else if (a === 'sequence' && dest === 'library') {
-        console.log('b')
+      if (a === "library" && dest === "sequence") {
+        console.log("a");
+      } else if (a === "sequence" && dest === "library") {
+        console.log("b");
       } else {
         // order change
       }
+
+      this.$store.commit("setTimelineDirty", true);
     }
   }
 };

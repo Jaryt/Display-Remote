@@ -1,21 +1,21 @@
 <template>
-  <v-app>
-    <router-view></router-view>
-  </v-app>
+  <router-view />
 </template>
 
 <script>
+import { get } from "./main.js";
+
 export default {
   mounted() {
-    this.loadSequence();
+    setTimeout(this.loadSequence(), 2000);
   },
   methods: {
     loadSequence() {
-      fetch("http://localhost:5000/sequence")
-        .then(res => res.json())
-        .then(media => this.$store.commit("updateMedia", media[0].media));
-    },
-  },
+      get("sequence", res => {
+        this.$store.commit("updateSequence", res.sequence || []);
+      });
+    }
+  }
 };
 </script>
 

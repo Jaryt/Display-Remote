@@ -1,17 +1,19 @@
 <template>
   <div id="timeline">
+    <p style="
+  text-align: left;">Timeline</p>
     <draggable
       id="sequence"
-      :list="media"
+      :list="sequence"
       @end="e => { update(e,'sequence')}"
       group="media"
       draggable=".item"
     >
-      <div class="item" v-for="element in media" :key="element">
+      <div class="item" v-for="element in sequence" :key="element">
         <img :src="getImage(element)" />
       </div>
     </draggable>
-    <div :hidden="media.length != 0">
+    <div :hidden="sequence.length != 0">
       <h1>Timeline is empty!</h1>
       <p>Click the "edit" button, and drag media from the library in the desired order.</p>
     </div>
@@ -21,6 +23,7 @@
 
 <script>
 import draggable from "vuedraggable";
+import { post } from "../main.js";
 
 const images = require.context("../assets/media/");
 
@@ -36,22 +39,24 @@ export default {
       return images("./" + path);
     },
     save() {
-      const options = {
-        method: "POST",
-        body: JSON.stringify({ media: this.media }),
-        headers: {
-          "Content-Type": "application/json"
-        }
-      };
-
-      fetch("http://localhost:5000/sequence", options)
-        .then(res => res.json())
-        .then(res => console.log(res));
+      post(
+        "sequence",
+        JSON.stringify({ sequence: this.sequence }),
+        res => {
+          console.log(res);
+        },
+        "application/json"
+      );
+      
+      this.$store.commit("setTimelineDirty", false);
     }
   },
   computed: {
-    media() {
-      return this.$store.state.media;
+    sequence() {
+      return this.$store.state.sequence;
+    },
+    displaySequence() {
+      return this.$store.state.sequence;
     }
   }
 };

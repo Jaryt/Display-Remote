@@ -14,21 +14,25 @@
 
 <script>
 const library = require.context("../assets/media/");
-const mime = require("mime");
+import mime from "mime";
+import { get } from "../main.js";
 
 export default {
   data() {
     return {
       buffer: 0,
       curIndex: -1,
+      index: 0,
+      playing: false,
       curType: "",
-      playing: true,
-      activeBuffer: Object
+      activeBuffer: Object,
+      otherBuffer: Object
     };
   },
   mounted() {
     this.activeBuffer = this.$refs["buffer0"];
-    this.$refs.buffer1.classList.toggle("fade");
+    this.otherBuffer = this.$refs["buffer1"];
+    this.otherBuffer.classList.toggle("fade");
 
     const play = () => {
       this.update();
@@ -36,57 +40,61 @@ export default {
       setTimeout(play, 1000);
     };
 
-    setTimeout(play, 1000);
+    setTimeout(play, 5000);
   },
   methods: {
     update() {
-      fetch("http://localhost:5000/playback")
-        .then(res => res.json())
-        .then(playback => {
-          if (
-            playback.index == this.curIndex &&
-            playback.playing == playback.playing
-          ) {
-            return;
-          }
+      if (this.$store.state.isDirty) {
+        let sequence = this.$store.state.sequence;
+        this.index = ++this.index % sequence.length;
 
-          let sequence = this.$store.state.media;
-
-          this.activeBuffer.classList.add("fade");
-          this.activeBuffer.style.zIndex = 0;
-
-          let media = sequence[playback.index];
-          let nextBuffer = this.otherBuffer();
-
-          nextBuffer.style.zIndex = 1;
-
-          let extension = media.split(".").pop();
-          let mediaType = mime.getType(extension).split("/")[0];
-          let source;
-
-          if (mediaType === "image") {
-            source = nextBuffer.firstChild;
-            nextBuffer.lastChild.hidden = true;
-          } else {
-            source = nextBuffer.lastChild;
-            nextBuffer.firstChild.hidden = true;
-          }
-
-          source.src = library(`./${media}`);
-          source.hidden = false;
-
-          nextBuffer.classList.remove("fade");
-
-          this.activeBuffer = nextBuffer;
-          this.curType = mediaType;
-          this.curIndex = playback.index;
-          this.playing = playback.playing;
-          this.buffer++;
-        })
-        .catch(e => console.log(e));
+        this.playbackUpdate({ index: this.index, playing: this.playing });
+      } else {
+        get("playback", this.playbackUpdate);
+      }
     },
-    otherBuffer() {
-      return this.$refs[`buffer${(this.buffer + 1) % 2}`];
+    playbackUpdate(playback) {
+      let sequence = this.$store.state.sequence;
+
+      if (
+        (playback.index == this.curIndex &&
+          playback.playing == playback.playing) ||
+        sequence.length == 0
+      ) {
+        return;
+      }
+
+      this.activeBuffer.classList.add("fade");
+      this.activeBuffer.style.zIndex = 0;
+
+      let media = sequence[playback.index];
+
+      let nextBuffer = this.otherBuffer;
+
+      let extension = media.split(".").pop();
+      let mediaType = mime.getType(extension).split("/")[0];
+      let source;
+
+      if (mediaType === "image") {
+        source = nextBuffer.firstChild;
+        nextBuffer.lastChild.hidden = true;
+      } else {
+        source = nextBuffer.lastChild;
+        nextBuffer.firstChild.hidden = true;
+      }
+
+      source.src = library(`./${media}`);
+      source.hidden = false;
+
+      nextBuffer.style.zIndex = 1;
+      nextBuffer.classList.remove("fade");
+
+      this.otherBuffer = this.activeBuffer;
+      this.activeBuffer = nextBuffer;
+      this.curType = mediaType;
+      this.curIndex = playback.index;
+      this.playing = playback.playing;
+      this.buffer++;
     }
   }
 };

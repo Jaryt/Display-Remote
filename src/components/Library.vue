@@ -17,6 +17,7 @@
 
 <script>
 import draggable from "vuedraggable";
+import { get } from "../main.js";
 
 const images = require.context("../assets/media/");
 
@@ -37,20 +38,20 @@ export default {
   },
   methods: {
     syncLibrary() {
-      let sequence = this.$store.state.media;
+      let sequence = this.$store.state.sequence;
 
-      fetch("http://localhost:5000/available")
-        .then(res => res.json())
-        .then(available => {
-          let wholeLib = JSON.parse(available);
-
-          this.library = wholeLib.filter(media => !sequence.includes(media));
-        }).catch(e =>console.log(e));
+      get("available", available => {
+        if (sequence) {
+          this.library = available.filter(media => !sequence.includes(media));
+        } else {
+          this.library = available;
+        }
+      });
     },
     getImage(path) {
       return images("./" + path);
     }
-  },
+  }
 };
 </script>
 
@@ -72,6 +73,5 @@ img {
   height: 10vh;
   object-fit: scale-down;
   background: black;
-  align: left;
 }
 </style>

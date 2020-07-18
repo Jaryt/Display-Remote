@@ -1,12 +1,12 @@
 <template>
   <div id="actions">
-    <button @click="$emit('on-seek', -1)">
+    <button @click="seek(-1)">
       <img src="../assets/controls/back.png" />
     </button>
     <button @click="togglePause">
       <img :src="playing" />
     </button>
-    <button @click="$emit('on-seek', 1)">
+    <button @click="seek(1)">
       <img src="../assets/controls/forward.png" />
     </button>
   </div>
@@ -15,17 +15,35 @@
 <script>
 import pause from "../assets/controls/pause.png";
 import play from "../assets/controls/play.png";
+const { post } = require("../main.js");
 
 export default {
   data() {
     return {
-      playing: this.$store.state.playback.playing ? play : pause
+      playing: play
     };
   },
   methods: {
     togglePause() {
-      this.$emit("on-seek", 0);
-      this.playing = this.$store.state.playback.playing ? play : pause;
+      post("playback", { playing: false }, response => {
+        this.playing = response.playing ? play : pause;
+      });
+      // const options = {
+      //   method: "POST",
+      //   body: JSON.stringify({
+
+      //   }),
+      //   headers: {
+      //     "Content-Type": "application/json"
+      //   }
+      // };
+
+      // this.playing =     fetch("http://localhost:5000/playback", options)
+      //   .then(res => res.json())
+      //   .then(playback => {;
+    },
+    seek(offset) {
+      console.log(offset);
     }
   }
 };

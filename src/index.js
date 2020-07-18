@@ -3,7 +3,7 @@ const cors = require('cors');
 const monk = require('monk');
 const multer = require('multer');
 const fs = require('fs');
-
+const { time } = require('console');
 const app = express();
 const db = monk('localhost:27017')
 const media = `${__dirname}/assets/media`
@@ -23,13 +23,24 @@ app.use(express.urlencoded({ extended: true }))
 app.use(express.json());
 app.use(cors());
 
+const fixedDuration = 1000;
+
+const play = () => {
+  playback.index = (++playback.index) % playback.count;
+
+  timeout.current = setTimeout(play, fixedDuration);
+  timeout.remaining = fixedDuration;
+  timeout.lastUpdate = Date.now();
+}
+
 const playback = {
   playing: true,
   index: 0,
+  count: 0
 };
 
 const timeout = {
-  current: null,
+  current: undefined,
   lastUpdate: Date.now(),
 }
 
@@ -44,13 +55,23 @@ app.post("/playback", (req, res) => {
   if (input.playing !== undefined) {
     playback.playing = input.playing;
 
-    
+    if (playback.playing && timeout.current != undefined) {
+      clearTimeout(timeout.current);
+
+      let now = Date.now();
+
+      timeout.remaining -= (now - timeout.lastUpdate);
+      timeout.lastUpdate = now;
+    } else {
+      timeout.current = setTimeout(play, timeout.remaining);
+    }
   }
 
-  if (input.seek) {
+  if (input.index != playback.index) {
 
   }
 
+  res.json(playback);
   res.status(200);
 })
 
@@ -60,46 +81,50 @@ const getMedia = () => {
   return files;
 }
 
+const setSequence = (res) => {
+  if (res.sequence) {
+    playback.index = 0;
+    playback.count = res.sequence.length;
+  }
+}
+
 app.get('/available', (req, res) => {
-  res.json(JSON.stringify(getMedia()));
+  res.json(getMedia());
 });
 
 app.post('/upload', upload.array('files', 12), (req, res) => {
   res.status(200);
-  res.json(JSON.stringify(getMedia()));
+  res.json(getMedia());
 })
 
 const sequences = db.get('sequence');
 
 app.get('/sequence', (req, res) => {
-  sequences.find().then((sequence) => {
-    res.json(sequence);
-    res.status(200);
+  sequences.find().then(sequence => {
+    if (sequence) {
+      res.json(sequence[0]);
+      res.status(200);
+    }
   });
 });
 
 app.post('/sequence', (req, res) => {
   sequences.drop();
-  sequences.insert(req.body).then(sequence => {
-    res.json(sequence);
+  sequences.insert(req.body).then(newSequence => {
+    setSequence(newSequence);
+
+    res.json(newSequence.sequence);
     res.status(200);
   }).catch(e => console.log(e));
 });
 
 app.listen(5000, () => {
-  console.log('Starting server...');
-
-  const play = () => {
-    let media = getMedia().length;
-
-
-    playback.index = ++playback.index % media;
-
-    console.log(playback.index)
-
-    timeout.current = setTimeout(play, 15000);
-    timeout.lastUpdate = Date.now();
-  }
+  sequences.find().then(sequence => {
+    setSequence(sequence ? sequence[0] : { sequence: [] })
+  })
+    .catch(e => console.log(e));
 
   play();
+
+  console.log('Server started')
 })

@@ -9,7 +9,8 @@
 </template>
 
 <script>
-const axios = require("axios");
+import { post } from "../main.js";
+// import axios from "axios";
 
 export default {
   data() {
@@ -31,20 +32,20 @@ export default {
 
       this.status = "Uploading... Please wait.";
 
-      axios
-        .post("http://localhost:5000/upload", formData, {
-          headers: {
-            "Content-Type": "multipart/form-data"
-          }
-        })
-        .then(() => {
+      // axios.post('http://localhost:5000/upload', formData,)
+
+      post(
+        "upload",
+        formData,
+        () => {
           this.status = "Upload complete.";
           setTimeout(() => {
-            this.status = "Upload media:"
+            this.status = "Upload media:";
           }, 10000);
           this.complete();
-        })
-        .catch(e => this.status = e);
+        },
+        "multipart/form-data"
+      );
     },
 
     onSelect() {

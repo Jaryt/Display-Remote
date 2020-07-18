@@ -5,7 +5,7 @@
       <ctrlr-actions @on-seek="onSeek"></ctrlr-actions>
     </div>
     <ctrlr-editor :editing="editing">
-      <v-btn @click="editing = !editing">Toggle Sequence Editor</v-btn>
+      <button @click="editing = !editing">Toggle Sequence Editor</button>
     </ctrlr-editor>
   </div>
 </template>
