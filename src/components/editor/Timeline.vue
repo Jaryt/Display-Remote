@@ -56,9 +56,9 @@ export default {
     sequence() {
       return this.$store.state.sequence;
     },
-    displaySequence() {
-      return this.$store.state.sequence;
-    }
+    // displaySequence() {
+    //   return this.$store.state.sequence;
+    // }
   }
 };
 </script>

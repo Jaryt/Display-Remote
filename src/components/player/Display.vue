@@ -9,7 +9,7 @@
 
     <div class="buffer" ref="buffer1">
       <img hidden ref="image" />
-      <video hidden ref="video"  ended="videoEnded" :paused="!playing" />
+      <video hidden ref="video" ended="videoEnded" :paused="!playing" />
     </div>
   </div>
 </template>
@@ -25,7 +25,7 @@ export default {
       index: 0,
       playing: false,
       curType: "",
-      seqId: 0,
+      sequenceID: "",
       activeSource: Object,
       activeBuffer: Object,
       otherBuffer: Object
@@ -59,9 +59,15 @@ export default {
       console.log(e);
     },
     playbackUpdate(playback) {
-      if (playback.changeNum != this.changeNum) {
+      if (
+        this.$store.state.tracker != playback.id &&
+        !this.$store.state.isDirty
+      ) {
         get("sequence", res => {
-          this.$store.commit("updateSequence", res.sequence || []);
+          this.$store.commit("updateSequence", {
+            sequence: res.sequence || [],
+            tracker: playback.id
+          });
         });
       }
 
@@ -99,7 +105,11 @@ export default {
 
         source.src = this.$store.state.getMedia(`./${media.path}`);
 
-        if (mediaType.startsWith("video") && !source.playing && playback.playing) {
+        if (
+          mediaType.startsWith("video") &&
+          !source.playing &&
+          playback.playing
+        ) {
           source.play();
         }
 

@@ -20,7 +20,7 @@
 <script>
 import draggable from "vuedraggable";
 import { get } from "../../main.js";
-// import videoThumb from "@/assets/video.png";
+import videoThumb from "@/assets/video.png";
 
 export default {
   props: {
@@ -32,7 +32,7 @@ export default {
   data() {
     return {
       library: [],
-      updates: 0
+      id: String
     };
   },
   mounted() {
@@ -43,14 +43,12 @@ export default {
       let sequence = this.$store.state.sequence;
 
       get("available", available => {
-        if (this.updates != available.updates) {
-          this.updates = available.updates;
+        if (this.id != available.id) {
+          this.id = available.id;
           this.$store.commit("updateMedia");
         }
 
         let usedMedia = sequence.map(media => media.path);
-
-        console.log(available.media);
 
         if (sequence) {
           this.library = available.media.filter(
@@ -62,13 +60,9 @@ export default {
       });
     },
     getImage(media) {
-      // console.log(media);
-
-      // if (media.type.startsWith("video")) {
-      //   return videoThumb;
-      // }
-
-      console.log(media, this.library);
+      if (media.type.startsWith("video")) {
+        return videoThumb;
+      }
 
       return this.$store.state.getMedia(`./${media.path}`);
     }

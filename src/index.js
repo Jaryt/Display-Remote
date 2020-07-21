@@ -12,11 +12,11 @@ const mediaPath = `${__dirname}/../public/media/`
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    if (mime.getType(file.originalname.toLowerCase()).startsWith('video')) {
-      cb(null, mediaPath)
-    } else {
-      cb(null, mediaPath)
-    }
+    // if (mime.getType(file.originalname.toLowerCase()).startsWith('video')) {
+    //   cb(null, mediaPath)
+    // } else {
+    cb(null, mediaPath)
+    // }
   },
   filename: (req, file, cb) => {
     cb(null, file.originalname.toLowerCase())
@@ -34,8 +34,8 @@ const fixedDuration = 2000;
 const play = () => {
   playback.index = (++playback.index) % playback.count;
 
-  timeout.current = setTimeout(play, fixedDuration);
-  timeout.remaining = fixedDuration;
+  timeout.remaining = timeout.sequence[playback.index].duration;
+  timeout.current = setTimeout(play, timeout.remaining);
   timeout.lastUpdate = Date.now();
 }
 
@@ -47,6 +47,7 @@ const playback = {
 };
 
 const timeout = {
+  sequence: undefined,
   current: undefined,
   lastUpdate: Date.now(),
 }
@@ -87,8 +88,10 @@ app.post("/seek", (req, res) => {
 
   playback.remaining = fixedDuration;
 
+  // if ()
+
   if (playback.playing) {
-    timeout.current = setTimeout(play, fixedDuration);
+    timeout.current = setTimeout(play, playback.remaining);
   }
 
   res.json(playback);
@@ -98,7 +101,9 @@ app.post("/seek", (req, res) => {
 const getMedia = () => {
   const files = fs.readdirSync(mediaPath);
 
-  return files;
+  return Promise.all(files.map(media =>
+    formatMedia(media)
+  ));
 }
 
 const setSequence = (res) => {
@@ -106,39 +111,47 @@ const setSequence = (res) => {
     playback.index = 0;
     playback.count = res.sequence.length;
     playback.id = res._id;
+    timeout.sequence = res.sequence;
   }
 }
 
-const formatMedia = async media => {
-  let duration = fixedDuration;
+const formatMedia = media => {
   let type = mime.getType(media);
 
-  if (type.startsWith('video')) {
-    await getVideoDurationInSeconds(mediaPath + media).then(dur => {
-      duration = dur * 1000;
-    }).catch(e => console.log(e));
-  }
-
-  return {
-    path: media,
-    type,
-    duration
-  };
+  return new Promise((resolve) => {
+    if (type.startsWith('video')) {
+      getVideoDurationInSeconds(mediaPath + media).then(dur => {
+        resolve({
+          path: media,
+          type,
+          duration: dur * 1000
+        });
+      }).catch(e => console.log(e));
+    } else {
+      resolve({
+        path: media,
+        type,
+        duration: fixedDuration
+      });
+    }
+  });
 }
 
 app.get('/available', (req, res) => {
-  getMedia().map(media => {
-    formatMedia(media).then(loadedMedia => {
-      console.log('Distrubting ' + JSON.stringify(loadedMedia));
-      return loadedMedia;
-    });;
+  getMedia().then((formattedMedia) => {
+    console.log(formattedMedia)
+    res.json({
+      id: playback.id,
+      media: formattedMedia
+    });
   });
-}
-);
+})
 
 app.post('/upload', upload.array('files', 12), (req, res) => {
-  res.status(200);
-  res.json(getMedia());
+  getMedia().then((formattedMedia) => {
+    res.status(200);
+    res.json(formattedMedia);
+  });
 })
 
 const sequences = db.get('sequence');
@@ -146,6 +159,10 @@ const sequences = db.get('sequence');
 app.get('/sequence', (req, res) => {
   sequences.find().then(sequence => {
     if (sequence) {
+      sequence.forEach(element => {
+        console.log(element);
+      });
+
       res.json(sequence[0]);
       res.status(200);
     }
@@ -165,10 +182,10 @@ app.post('/sequence', (req, res) => {
 app.listen(5000, () => {
   sequences.findOne({}).then(sequence => {
     setSequence(sequence ? sequence : { sequence: [] })
+    play();
   })
     .catch(e => console.log(e));
 
-  play();
 
   console.log('Server started')
 })

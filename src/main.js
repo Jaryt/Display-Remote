@@ -33,14 +33,16 @@ const store = new Vuex.Store({
   state: {
     sequence: [
     ],
+    tracker: "",
     isDirty: false,
     getMedia() {
       console.log('No media loaded!');
     }
   },
   mutations: {
-    updateSequence(state, sequence) {
-      state.sequence = sequence;
+    updateSequence(state, res) {
+      state.sequence = res.sequence;
+      state.tracker = res.tracker;
     },
     updateMedia(state) {
       state.getMedia = require.context("../public/media/");
@@ -64,7 +66,7 @@ export function get(location, retrieved) {
   fetch(`http://localhost:5000/${location}`)
     .then(res => res.json())
     .then(retrieved)
-    .catch(e => console.log('FROM get: ', e));
+    .catch(e => console.log(`FROM get: ${location}`, e));
 }
 
 export function post(location, obj, retrieved, type) {

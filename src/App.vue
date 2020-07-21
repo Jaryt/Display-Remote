@@ -12,7 +12,7 @@ export default {
   methods: {
     loadSequence() {
       get("sequence", res => {
-        this.$store.commit("updateSequence", res.sequence || []);
+        this.$store.commit("updateSequence", { sequence: res.sequence || [] });
         this.$store.commit("updateMedia");
       });
     }

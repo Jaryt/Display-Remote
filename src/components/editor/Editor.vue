@@ -24,6 +24,7 @@ export default {
         // order change
       }
 
+        console.log(this.$store.state.sequence);
       this.$store.commit("setTimelineDirty", true);
     }
   }
