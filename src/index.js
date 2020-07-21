@@ -3,14 +3,20 @@ const cors = require('cors');
 const monk = require('monk');
 const multer = require('multer');
 const fs = require('fs');
-const { time } = require('console');
+const { getVideoDurationInSeconds } = require('get-video-duration')
+const mime = require('mime');
+
 const app = express();
 const db = monk('localhost:27017')
-const media = `${__dirname}/assets/media`
+const mediaPath = `${__dirname}/../public/media/`
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, media)
+    if (mime.getType(file.originalname.toLowerCase()).startsWith('video')) {
+      cb(null, mediaPath)
+    } else {
+      cb(null, mediaPath)
+    }
   },
   filename: (req, file, cb) => {
     cb(null, file.originalname.toLowerCase())
@@ -37,7 +43,7 @@ const playback = {
   playing: true,
   index: 0,
   count: 0,
-  changeNum: 0,
+  id: 0,
 };
 
 const timeout = {
@@ -90,7 +96,7 @@ app.post("/seek", (req, res) => {
 })
 
 const getMedia = () => {
-  const files = fs.readdirSync(media);
+  const files = fs.readdirSync(mediaPath);
 
   return files;
 }
@@ -99,12 +105,36 @@ const setSequence = (res) => {
   if (res.sequence) {
     playback.index = 0;
     playback.count = res.sequence.length;
+    playback.id = res._id;
   }
 }
 
+const formatMedia = async media => {
+  let duration = fixedDuration;
+  let type = mime.getType(media);
+
+  if (type.startsWith('video')) {
+    await getVideoDurationInSeconds(mediaPath + media).then(dur => {
+      duration = dur * 1000;
+    }).catch(e => console.log(e));
+  }
+
+  return {
+    path: media,
+    type,
+    duration
+  };
+}
+
 app.get('/available', (req, res) => {
-  res.json(getMedia());
-});
+  getMedia().map(media => {
+    formatMedia(media).then(loadedMedia => {
+      console.log('Distrubting ' + JSON.stringify(loadedMedia));
+      return loadedMedia;
+    });;
+  });
+}
+);
 
 app.post('/upload', upload.array('files', 12), (req, res) => {
   res.status(200);
@@ -125,8 +155,6 @@ app.get('/sequence', (req, res) => {
 app.post('/sequence', (req, res) => {
   sequences.drop();
   sequences.insert(req.body).then(newSequence => {
-    playback.changeNum++;
-
     setSequence(newSequence);
 
     res.json(newSequence.sequence);
@@ -136,7 +164,7 @@ app.post('/sequence', (req, res) => {
 
 app.listen(5000, () => {
   sequences.findOne({}).then(sequence => {
-    setSequence(sequence ? sequence[0] : { sequence: [] })
+    setSequence(sequence ? sequence : { sequence: [] })
   })
     .catch(e => console.log(e));
 

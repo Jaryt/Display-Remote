@@ -15,6 +15,7 @@
     "element-ui": "^2.13.2",
     "express": "^4.17.1",
     "formidable": "^1.2.2",
+    "get-video-duration": "^3.0.0",
     "mime": "^2.4.6",
     "mongodb": "^3.5.9",
     "monk": "^7.3.0",

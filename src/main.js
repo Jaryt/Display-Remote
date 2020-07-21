@@ -1,14 +1,15 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
+import mime from "mime";
 import App from './App'
 import Home from './components/Home.vue'
-import Display from './components/Display.vue'
-import Theatre from './components/Theatre.vue'
-import Actions from './components/Actions.vue'
-import Upload from './components/Upload.vue'
-import Editor from './components/Editor.vue'
-import Library from './components/Library.vue'
-import Timeline from './components/Timeline.vue'
+import Display from './components/player/Display.vue'
+import Theatre from './components/player/Theatre.vue'
+import Actions from './components/player/Actions.vue'
+import Upload from './components/editor/Upload.vue'
+import Editor from './components/editor/Editor.vue'
+import Library from './components/editor/Library.vue'
+import Timeline from './components/editor/Timeline.vue'
 import VueRouter from 'vue-router'
 
 Vue.use(Vuex);
@@ -32,11 +33,17 @@ const store = new Vuex.Store({
   state: {
     sequence: [
     ],
-    isDirty: false
+    isDirty: false,
+    getMedia() {
+      console.log('No media loaded!');
+    }
   },
   mutations: {
     updateSequence(state, sequence) {
       state.sequence = sequence;
+    },
+    updateMedia(state) {
+      state.getMedia = require.context("../public/media/");
     },
     setTimelineDirty(state, isDirty) {
       state.isDirty = isDirty;
@@ -54,7 +61,10 @@ new Vue({
 
 
 export function get(location, retrieved) {
-  fetch(`http://localhost:5000/${location}`).then(res => res.json()).then(retrieved);
+  fetch(`http://localhost:5000/${location}`)
+    .then(res => res.json())
+    .then(retrieved)
+    .catch(e => console.log('FROM get: ', e));
 }
 
 export function post(location, obj, retrieved, type) {
@@ -74,4 +84,8 @@ export function post(location, obj, retrieved, type) {
     .then(res => res.json())
     .then(retrieved)
     .catch(e => console.log(e));
+}
+
+export function getType(media) {
+  return mime.getType(media);
 }

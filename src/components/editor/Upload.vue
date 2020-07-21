@@ -9,8 +9,7 @@
 </template>
 
 <script>
-import { post } from "../main.js";
-// import axios from "axios";
+import { post } from "@/main.js";
 
 export default {
   data() {
@@ -32,18 +31,15 @@ export default {
 
       this.status = "Uploading... Please wait.";
 
-      // axios.post('http://localhost:5000/upload', formData,)
-
       post(
         "upload",
         formData,
-        (e) => {
-          console.log(e);
-
+        () => {
           this.status = "Upload complete.";
           setTimeout(() => {
             this.status = "Upload media:";
           }, 10000);
+
           setTimeout(this.complete, 1000);
         },
         undefined

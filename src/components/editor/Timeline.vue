@@ -9,7 +9,7 @@
       group="media"
       draggable=".item"
     >
-      <div class="item" v-for="element in sequence" :key="element">
+      <div class="item" v-for="element in sequence" :key="element.path">
         <img :src="getImage(element)" />
       </div>
     </draggable>
@@ -23,9 +23,8 @@
 
 <script>
 import draggable from "vuedraggable";
-import { post } from "../main.js";
-
-const images = require.context("../assets/media/");
+import { post } from "@/main.js";
+import videoThumb from "@/assets/video.png";
 
 export default {
   components: {
@@ -35,8 +34,12 @@ export default {
     update: Function
   },
   methods: {
-    getImage(path) {
-      return images("./" + path);
+    getImage(media) {
+      if (media.type.startsWith("video")) {
+        return videoThumb;
+      }
+
+      return this.$store.state.getMedia(`./${media.path}`);
     },
     save() {
       post(

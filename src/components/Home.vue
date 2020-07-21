@@ -1,14 +1,14 @@
 <template>
   <div id="display-remote">
     <div :hidden="editing" id="preview">
-      <ctrlr-display ref="display"></ctrlr-display>
+      <ctrlr-display ref="display" getMedia></ctrlr-display>
       <ctrlr-actions v-if="controls"></ctrlr-actions>
       <div v-else>
         <h1>Controller disabled!</h1>
         <p>Please save changes to timeline to continue controlling main display.</p>
       </div>
     </div>
-    <ctrlr-editor :editing="editing">
+    <ctrlr-editor :editing="editing" getMedia>
       <button @click="editing = !editing">Toggle Sequence Editor</button>
     </ctrlr-editor>
   </div>
@@ -24,8 +24,8 @@ export default {
   computed: {
     controls() {
       return !this.$store.state.isDirty;
-    }
-  }
+    },
+  },
 };
 </script>
 

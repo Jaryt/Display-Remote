@@ -13,6 +13,7 @@ export default {
     loadSequence() {
       get("sequence", res => {
         this.$store.commit("updateSequence", res.sequence || []);
+        this.$store.commit("updateMedia");
       });
     }
   }

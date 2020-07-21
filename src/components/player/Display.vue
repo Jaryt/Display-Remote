@@ -2,20 +2,20 @@
   <div id="display">
     <div class="buffer" ref="buffer0">
       <img hidden ref="image" />
-      <video hidden ref="video" />
+      <video hidden ref="video" ended="videoEnded" :paused="!playing">
+        <!-- <source ref="source" v-if=test/> -->
+      </video>
     </div>
 
     <div class="buffer" ref="buffer1">
       <img hidden ref="image" />
-      <video hidden ref="video" />
+      <video hidden ref="video"  ended="videoEnded" :paused="!playing" />
     </div>
   </div>
 </template>
 
 <script>
-const library = require.context("../assets/media/");
-import mime from "mime";
-import { get } from "../main.js";
+import { get } from "@/main.js";
 
 export default {
   data() {
@@ -25,7 +25,8 @@ export default {
       index: 0,
       playing: false,
       curType: "",
-      changeNum: 0,
+      seqId: 0,
+      activeSource: Object,
       activeBuffer: Object,
       otherBuffer: Object
     };
@@ -54,6 +55,9 @@ export default {
         get("playback", this.playbackUpdate);
       }
     },
+    videoEnded(e) {
+      console.log(e);
+    },
     playbackUpdate(playback) {
       if (playback.changeNum != this.changeNum) {
         get("sequence", res => {
@@ -63,46 +67,54 @@ export default {
 
       let sequence = this.$store.state.sequence;
 
-      if (
-        (playback.index == this.curIndex &&
-          playback.playing == playback.playing) ||
-        sequence.length == 0
-      ) {
+      if (sequence.length == 0) {
         return;
       }
 
-      this.activeBuffer.classList.add("fade");
-      this.activeBuffer.style.zIndex = 0;
+      if (playback.playing != this.playing) {
+        if (this.activeSource.nodeName === "VIDEO") {
+          if (playback.playing) {
+            this.activeSource.play();
+          } else {
+            this.activeSource.pause();
+          }
+        }
 
-      let media = sequence[playback.index];
-
-      let nextBuffer = this.otherBuffer;
-
-      let extension = media.split(".").pop();
-      let mediaType = mime.getType(extension).split("/")[0];
-      let source;
-
-      if (mediaType === "image") {
-        source = nextBuffer.firstChild;
-        nextBuffer.lastChild.hidden = true;
-      } else {
-        source = nextBuffer.lastChild;
-        nextBuffer.firstChild.hidden = true;
+        this.playing = playback.playing;
       }
 
-      source.src = library(`./${media}`);
-      source.hidden = false;
+      if (playback.index != this.curIndex) {
+        this.activeBuffer.classList.add("fade");
+        this.activeBuffer.style.zIndex = 0;
 
-      nextBuffer.style.zIndex = 1;
-      nextBuffer.classList.remove("fade");
+        let media = sequence[playback.index];
+        let mediaType = media.type;
 
-      this.otherBuffer = this.activeBuffer;
-      this.activeBuffer = nextBuffer;
-      this.curType = mediaType;
-      this.curIndex = playback.index;
-      this.playing = playback.playing;
+        let nextBuffer = this.otherBuffer;
+        let isImage = mediaType.startsWith("image");
+        let source = isImage ? nextBuffer.firstChild : nextBuffer.lastChild;
+
+        nextBuffer.firstChild.hidden = !isImage;
+        nextBuffer.lastChild.hidden = isImage;
+
+        source.src = this.$store.state.getMedia(`./${media.path}`);
+
+        if (mediaType.startsWith("video") && !source.playing && playback.playing) {
+          source.play();
+        }
+
+        nextBuffer.style.zIndex = 1;
+        nextBuffer.classList.remove("fade");
+
+        this.activeSource = source;
+        this.otherBuffer = this.activeBuffer;
+        this.activeBuffer = nextBuffer;
+        this.curType = mediaType;
+        this.curIndex = playback.index;
+        this.buffer++;
+      }
+
       this.changeNum = playback.changeNum;
-      this.buffer++;
     }
   }
 };
