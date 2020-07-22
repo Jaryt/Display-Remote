@@ -2,14 +2,14 @@
   <div id="display">
     <div class="buffer" ref="buffer0">
       <img hidden ref="image" />
-      <video hidden ref="video" ended="videoEnded" :paused="!playing">
+      <video hidden ref="video" :paused="!playing">
         <!-- <source ref="source" v-if=test/> -->
       </video>
     </div>
 
     <div class="buffer" ref="buffer1">
       <img hidden ref="image" />
-      <video hidden ref="video" ended="videoEnded" :paused="!playing" />
+      <video hidden ref="video" :paused="!playing" />
     </div>
   </div>
 </template>
@@ -54,9 +54,6 @@ export default {
       } else {
         get("playback", this.playbackUpdate);
       }
-    },
-    videoEnded(e) {
-      console.log(e);
     },
     playbackUpdate(playback) {
       if (

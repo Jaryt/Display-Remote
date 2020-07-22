@@ -17,14 +17,13 @@ export default {
       let dest = e.to.id;
 
       if (a === "library" && dest === "sequence") {
-        console.log("a");
+        // console.log("a");
       } else if (a === "sequence" && dest === "library") {
-        console.log("b");
+        // console.log("b");
       } else {
         // order change
       }
-
-        console.log(this.$store.state.sequence);
+      
       this.$store.commit("setTimelineDirty", true);
     }
   }

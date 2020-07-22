@@ -12,11 +12,7 @@ const mediaPath = `${__dirname}/../public/media/`
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    // if (mime.getType(file.originalname.toLowerCase()).startsWith('video')) {
-    //   cb(null, mediaPath)
-    // } else {
     cb(null, mediaPath)
-    // }
   },
   filename: (req, file, cb) => {
     cb(null, file.originalname.toLowerCase())
@@ -88,8 +84,6 @@ app.post("/seek", (req, res) => {
 
   playback.remaining = fixedDuration;
 
-  // if ()
-
   if (playback.playing) {
     timeout.current = setTimeout(play, playback.remaining);
   }
@@ -159,10 +153,6 @@ const sequences = db.get('sequence');
 app.get('/sequence', (req, res) => {
   sequences.find().then(sequence => {
     if (sequence) {
-      sequence.forEach(element => {
-        console.log(element);
-      });
-
       res.json(sequence[0]);
       res.status(200);
     }

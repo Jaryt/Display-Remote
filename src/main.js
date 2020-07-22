@@ -61,9 +61,10 @@ new Vue({
   render: (h) => h(App),
 }).$mount('#app')
 
+const server = process.env.DISPLAY_SERVER;
 
 export function get(location, retrieved) {
-  fetch(`http://localhost:5000/${location}`)
+  fetch(server + location)
     .then(res => res.json())
     .then(retrieved)
     .catch(e => console.log(`FROM get: ${location}`, e));
@@ -82,7 +83,7 @@ export function post(location, obj, retrieved, type) {
     options.headers['Content-Type'] = type;
   }
 
-  fetch(`http://localhost:5000/${location}`, options)
+  fetch(server + location, options)
     .then(res => res.json())
     .then(retrieved)
     .catch(e => console.log(e));
