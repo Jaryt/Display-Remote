@@ -24,8 +24,8 @@ Vue.component('ctrlr-editor', Editor); //
 Vue.config.productionTip = false;
 Vue.config.devtools = true;
 
-const server = "http://localhost:5000/";
-// const server = "http://192.168.4.1:5000/";
+// const server = "http://localhost:5000/";
+const server = "http://192.168.4.1:5000/";
 
 const routes = [
   { path: '/', component: Home },
