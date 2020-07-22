@@ -3,13 +3,13 @@ const cors = require('cors');
 const monk = require('monk');
 const multer = require('multer');
 const fs = require('fs');
-const { getVideoDurationInSeconds } = require('get-video-duration')
 const mime = require('mime');
 const { allowedNodeEnvironmentFlags } = require('process');
 
 const app = express();
 const db = monk('localhost:27017')
 const mediaPath = __dirname + '/media/';
+const exec = require('child_process').exec;
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -123,13 +123,13 @@ const formatMedia = media => {
 
   return new Promise((resolve) => {
     if (type.startsWith('video')) {
-      getVideoDurationInSeconds(mediaPath + media).then(dur => {
+      exec(`ffmpeg -i small.mp4 2>&1 | grep Duration | awk '{print $2}' | tr -d , | sed s/://g`, (err, dur) => {
         resolve({
           path: media,
           type,
           duration: dur * 1000
         });
-      }).catch(e => console.log(e));
+      });
     } else {
       resolve({
         path: media,
