@@ -100,8 +100,6 @@ app.post("/seek", (req, res) => {
 })
 
 const getMedia = () => {
-  console.log('Reading from ' + mediaPath)
-
   const files = fs.readdirSync(mediaPath);
 
   return Promise.all(files.map(media =>
@@ -110,12 +108,10 @@ const getMedia = () => {
 }
 
 const setSequence = (res) => {
-  console.log(res);
-
   if (res.sequence) {
     playback.index = 0;
     playback.count = res.sequence.length;
-    playback.id = res._id;
+    playback.id++;
     state.sequence = res.sequence;
   }
 }
@@ -126,8 +122,6 @@ const formatMedia = media => {
   return new Promise((resolve) => {
     if (type.startsWith('video')) {
       exec(`ffmpeg -i ${mediaPath}${media} 2>&1 | grep Duration | awk '{print $2}' | tr -d , | sed s/://g`, (err, dur) => {
-console.log(dur + " durr");
-
         resolve({
           path: media,
           type,
@@ -146,7 +140,6 @@ console.log(dur + " durr");
 
 app.get('/available', (req, res) => {
   getMedia().then((formattedMedia) => {
-    console.log(formattedMedia)
     res.json({
       id: playback.id,
       media: formattedMedia
@@ -170,8 +163,6 @@ app.post('/sequence', (req, res) => {
   const data = JSON.stringify(req.body);
 
   setSequence(req.body);
-
-  console.log(data);
 
   fs.writeFile(__dirname + '/sequence.json', data, () => {
     res.json(req.body.sequence);

@@ -88,11 +88,8 @@ export function post(location, obj, retrieved, type) {
 
   fetch(server + location, options)
     .then(res => res.json())
-    .then(e => {
-      console.log(e, location)
-      retrieved(e);
-    })
-    .catch(e => console.log(e));
+    .then(retrieved)
+      .catch(e => console.log(e));
 }
 
 export function getType(media) {

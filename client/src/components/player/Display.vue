@@ -50,6 +50,7 @@ export default {
         let sequence = this.$store.state.sequence;
         this.index = ++this.index % sequence.length;
 
+
         this.playbackUpdate({ index: this.index, playing: this.playing });
       } else {
         get("playback", this.playbackUpdate);

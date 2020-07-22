@@ -12,8 +12,6 @@ export default {
   methods: {
     loadSequence() {
       get("sequence", res => {
-        console.log(res);
-
         this.$store.commit("updateSequence", { sequence: res.sequence || [] });
         this.$store.commit("updateMedia");
       });
