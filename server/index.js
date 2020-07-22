@@ -1,13 +1,10 @@
 const express = require('express');
 const cors = require('cors');
-const monk = require('monk');
 const multer = require('multer');
 const fs = require('fs');
 const mime = require('mime');
-const { allowedNodeEnvironmentFlags } = require('process');
 
 const app = express();
-const db = monk('localhost:27017')
 const mediaPath = __dirname + '/media/';
 const exec = require('child_process').exec;
 
@@ -32,7 +29,7 @@ const fixedDuration = 2000;
 const play = () => {
   playback.index = (++playback.index) % playback.count;
 
-  let cur = timeout.sequence[playback.index];
+  let cur = state.sequence[playback.index];
 
   if (cur) {
     timeout.remaining = cur.duration;
@@ -49,8 +46,11 @@ const playback = {
   id: 0,
 };
 
+const state = {
+  sequence: []
+}
+
 const timeout = {
-  sequence: undefined,
   current: undefined,
   lastUpdate: Date.now(),
 }
@@ -110,11 +110,13 @@ const getMedia = () => {
 }
 
 const setSequence = (res) => {
+  console.log(res);
+
   if (res.sequence) {
     playback.index = 0;
     playback.count = res.sequence.length;
     playback.id = res._id;
-    timeout.sequence = res.sequence;
+    state.sequence = res.sequence;
   }
 }
 
@@ -157,38 +159,36 @@ app.post('/upload', upload.array('files', 12), (req, res) => {
   });
 })
 
-const sequences = db.get('sequence');
-
 app.get('/sequence', (req, res) => {
-  sequences.find().then(sequence => {
-
-    if (sequence) {
-      res.json(sequence[0]);
-      res.status(200);
-    }
-  });
+  res.json({ sequence: state.sequence });
+  res.status(200);
 });
 
 app.post('/sequence', (req, res) => {
-  console.log(req.body)
+  const data = JSON.stringify(req.body);
 
-  sequences.drop();
-  sequences.insert(req.body).then(newSequence => {
-    setSequence(newSequence);
+  setSequence(req.body);
 
-    console.log('updated');
+  console.log(data);
 
-    res.json(newSequence.sequence);
+  fs.writeFile(__dirname + '/sequence.json', data, () => {
+    res.json(req.body.sequence);
     res.status(200);
-  }).catch(e => console.log(e));
+    console.log("JSON data is saved.");
+  });
 });
 
 app.listen(5000, () => {
-  sequences.findOne({}).then(sequence => {
-    setSequence(sequence ? sequence : { sequence: [] })
+  fs.readFile(__dirname + '/sequence.json', 'utf-8', (err, data) => {
+    if (err) {
+      throw err;
+    }
+
+    const sequence = JSON.parse(data.toString());
+
+    setSequence(sequence ? sequence  : { sequence: [] })
     play();
-  })
-    .catch(e => console.log(e));
+  });
 
   console.log('Server started')
 })

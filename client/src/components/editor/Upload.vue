@@ -36,11 +36,10 @@ export default {
         formData,
         () => {
           this.status = "Upload complete.";
+          this.$store.commit("updateMedia");
           setTimeout(() => {
             this.status = "Upload media:";
           }, 10000);
-
-          setTimeout(this.complete, 1000);
         },
         undefined
       );
