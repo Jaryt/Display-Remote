@@ -24,6 +24,8 @@ Vue.component('ctrlr-editor', Editor); //
 Vue.config.productionTip = false;
 Vue.config.devtools = true;
 
+const server = "http://localhost:5000/";
+
 const routes = [
   { path: '/', component: Home },
   { path: '/theatre', component: Theatre }
@@ -45,7 +47,9 @@ const store = new Vuex.Store({
       state.tracker = res.tracker;
     },
     updateMedia(state) {
-      state.getMedia = require.context("../public/media/");
+      state.getMedia = (path) => {
+        return `${server}static/${path}`
+      };
     },
     setTimelineDirty(state, isDirty) {
       state.isDirty = isDirty;
@@ -61,9 +65,9 @@ new Vue({
   render: (h) => h(App),
 }).$mount('#app')
 
-const server = process.env.DISPLAY_SERVER;
-
 export function get(location, retrieved) {
+  console.log('getting ' + location);
+
   fetch(server + location)
     .then(res => res.json())
     .then(retrieved)
@@ -71,6 +75,8 @@ export function get(location, retrieved) {
 }
 
 export function post(location, obj, retrieved, type) {
+  console.log('posting ' + location + obj);
+
   const options = {
     method: "POST",
     body: obj,
@@ -83,9 +89,14 @@ export function post(location, obj, retrieved, type) {
     options.headers['Content-Type'] = type;
   }
 
+  console.log(server + location);
+
   fetch(server + location, options)
     .then(res => res.json())
-    .then(retrieved)
+    .then(e => {
+      console.log(e, location)
+      retrieved(e);
+    })
     .catch(e => console.log(e));
 }
 

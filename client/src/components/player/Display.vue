@@ -100,7 +100,7 @@ export default {
         nextBuffer.firstChild.hidden = !isImage;
         nextBuffer.lastChild.hidden = isImage;
 
-        source.src = this.$store.state.getMedia(`./${media.path}`);
+        source.src = this.$store.state.getMedia(media.path);
 
         if (
           mediaType.startsWith("video") &&

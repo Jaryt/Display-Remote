@@ -64,7 +64,7 @@ export default {
         return videoThumb;
       }
 
-      return this.$store.state.getMedia(`./${media.path}`);
+      return this.$store.state.getMedia(media.path);
     }
   }
 };

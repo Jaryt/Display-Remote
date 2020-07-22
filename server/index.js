@@ -5,13 +5,16 @@ const multer = require('multer');
 const fs = require('fs');
 const { getVideoDurationInSeconds } = require('get-video-duration')
 const mime = require('mime');
+const { allowedNodeEnvironmentFlags } = require('process');
 
 const app = express();
 const db = monk('localhost:27017')
-const mediaPath = `${__dirname}/../public/media/`
+const mediaPath = process.env.FILE_STORE || '/app/share/';
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
+    console.log(mediaPath);
+
     cb(null, mediaPath)
   },
   filename: (req, file, cb) => {
@@ -22,6 +25,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage })
 
 app.use(express.urlencoded({ extended: true }))
+app.use('/static', express.static(mediaPath))
 app.use(express.json());
 app.use(cors());
 
@@ -30,7 +34,12 @@ const fixedDuration = 2000;
 const play = () => {
   playback.index = (++playback.index) % playback.count;
 
-  timeout.remaining = timeout.sequence[playback.index].duration;
+  let cur = timeout.sequence[playback.index];
+
+  if (cur) {
+    timeout.remaining = cur.duration;
+  }
+
   timeout.current = setTimeout(play, timeout.remaining);
   timeout.lastUpdate = Date.now();
 }
@@ -93,6 +102,8 @@ app.post("/seek", (req, res) => {
 })
 
 const getMedia = () => {
+  console.log('Reading from ' + mediaPath)
+
   const files = fs.readdirSync(mediaPath);
 
   return Promise.all(files.map(media =>
@@ -151,7 +162,9 @@ app.post('/upload', upload.array('files', 12), (req, res) => {
 const sequences = db.get('sequence');
 
 app.get('/sequence', (req, res) => {
+  console.log('get sequence')
   sequences.find().then(sequence => {
+
     if (sequence) {
       res.json(sequence[0]);
       res.status(200);
@@ -160,9 +173,13 @@ app.get('/sequence', (req, res) => {
 });
 
 app.post('/sequence', (req, res) => {
+  console.log(req.body)
+
   sequences.drop();
   sequences.insert(req.body).then(newSequence => {
     setSequence(newSequence);
+
+    console.log('updated');
 
     res.json(newSequence.sequence);
     res.status(200);
@@ -175,7 +192,6 @@ app.listen(5000, () => {
     play();
   })
     .catch(e => console.log(e));
-
 
   console.log('Server started')
 })

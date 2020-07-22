@@ -1,0 +1,25 @@
+version: "3"
+
+services:
+  frontend:
+    image: front-end
+    build: ./client/
+    ports:
+    - "8080:80"
+
+  backend:
+    image: back-end
+    build: ./server/
+    environment:
+      FILE_STORE: '/app/share'
+    restart: always
+    ports:
+    - "5000:5000"
+    links:
+    - db
+
+  db:
+    container_name: mongo
+    image: mongo
+    ports:
+    - "27017:27017"
