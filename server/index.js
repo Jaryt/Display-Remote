@@ -24,7 +24,7 @@ app.use('/static', express.static(mediaPath))
 app.use(express.json());
 app.use(cors());
 
-const fixedDuration = 2000;
+const fixedDuration = 10000;
 
 const play = () => {
   playback.index = (++playback.index) % playback.count;
@@ -125,7 +125,9 @@ const formatMedia = media => {
 
   return new Promise((resolve) => {
     if (type.startsWith('video')) {
-      exec(`ffmpeg -i small.mp4 2>&1 | grep Duration | awk '{print $2}' | tr -d , | sed s/://g`, (err, dur) => {
+      exec(`ffmpeg -i ${mediaPath}${media} 2>&1 | grep Duration | awk '{print $2}' | tr -d , | sed s/://g`, (err, dur) => {
+console.log(dur + " durr");
+
         resolve({
           path: media,
           type,
