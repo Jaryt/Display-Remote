@@ -9,12 +9,10 @@ const { allowedNodeEnvironmentFlags } = require('process');
 
 const app = express();
 const db = monk('localhost:27017')
-const mediaPath = process.env.FILE_STORE || '/app/share/';
+const mediaPath = __dirname + '/media/';
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    console.log(mediaPath);
-
     cb(null, mediaPath)
   },
   filename: (req, file, cb) => {
@@ -162,7 +160,6 @@ app.post('/upload', upload.array('files', 12), (req, res) => {
 const sequences = db.get('sequence');
 
 app.get('/sequence', (req, res) => {
-  console.log('get sequence')
   sequences.find().then(sequence => {
 
     if (sequence) {

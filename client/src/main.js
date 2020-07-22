@@ -66,8 +66,6 @@ new Vue({
 }).$mount('#app')
 
 export function get(location, retrieved) {
-  console.log('getting ' + location);
-
   fetch(server + location)
     .then(res => res.json())
     .then(retrieved)
@@ -75,8 +73,6 @@ export function get(location, retrieved) {
 }
 
 export function post(location, obj, retrieved, type) {
-  console.log('posting ' + location + obj);
-
   const options = {
     method: "POST",
     body: obj,
@@ -88,8 +84,6 @@ export function post(location, obj, retrieved, type) {
   if (type) {
     options.headers['Content-Type'] = type;
   }
-
-  console.log(server + location);
 
   fetch(server + location, options)
     .then(res => res.json())
