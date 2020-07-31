@@ -5,5 +5,5 @@ RUN npm install
 COPY ./ .
 
 EXPOSE 5000
-RUN mkdir /app/share/
+RUN mkdir /app/media/
 CMD ["node", "index.js"]
