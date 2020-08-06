@@ -10,25 +10,23 @@
 <script>
 export default {
   props: {
-    editing: Boolean
+    editing: Boolean,
   },
   methods: {
     update(e, a) {
       let dest = e.to.id;
 
-      console.log(a);
-
-      if (a === "library" && dest === "sequence") {
+      if (a === "library") {
         // console.log("a");
       } else if (a === "sequence" && dest === "library") {
         // console.log("b");
       } else {
         // order change
       }
-      
+
       this.$store.commit("setTimelineDirty", true);
-    }
-  }
+    },
+  },
 };
 </script>
 

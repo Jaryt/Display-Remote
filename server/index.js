@@ -151,6 +151,12 @@ app.post('/upload', upload.array('files', 12), (req, res) => {
   });
 })
 
+app.post('/remove', (req, res) => {
+  fs.unlink(`${mediaPath}${req.body.media}`, (err) => {
+    res.status(200);
+  });
+});
+
 app.get('/sequence', (req, res) => {
   res.json({ sequence: state.sequence });
   res.status(200);

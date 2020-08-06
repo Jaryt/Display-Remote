@@ -67,6 +67,12 @@ export function get(location, retrieved) {
     .catch(e => console.log(`FROM get: ${location}`, e));
 }
 
+export function trimResource(res) {
+  console.log(res.replace(server + 'static/', ''));
+
+  return res.replace(server + 'static/', '');
+}
+
 export function post(location, obj, retrieved, type) {
   const options = {
     method: "POST",
