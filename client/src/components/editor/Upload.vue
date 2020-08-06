@@ -15,17 +15,17 @@ export default {
   data() {
     return {
       status: "Upload media:",
-      files: []
+      files: [],
     };
   },
   props: {
-    complete: Function
+    complete: Function,
   },
   methods: {
     submitFiles() {
       let formData = new FormData();
 
-      this.files.forEach(file => {
+      this.files.forEach((file) => {
         formData.append(`files`, file);
       });
 
@@ -36,18 +36,21 @@ export default {
         formData,
         () => {
           this.status = "Upload complete.";
-          this.$store.commit("updateMedia");
+          // this.$store.commit("updateMedia");
+          this.complete();
+
           setTimeout(() => {
             this.status = "Upload media:";
           }, 10000);
         },
+
         undefined
       );
     },
 
     onSelect() {
       this.files = this.$refs.files.files;
-    }
-  }
+    },
+  },
 };
 </script>

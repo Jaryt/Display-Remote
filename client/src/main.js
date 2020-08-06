@@ -25,7 +25,6 @@ Vue.config.productionTip = false;
 Vue.config.devtools = true;
 
 const server = "http://localhost:5000/";
-// const server = "http://192.168.4.1:5000/";
 
 const routes = [
   { path: '/', component: Home },
@@ -38,19 +37,14 @@ const store = new Vuex.Store({
     ],
     tracker: "",
     isDirty: false,
-    getMedia() {
-      console.log('No media loaded!');
+    getMedia(path) {
+      return `${server}static/${path}`;
     }
   },
   mutations: {
     updateSequence(state, res) {
       state.sequence = res.sequence;
       state.tracker = res.tracker;
-    },
-    updateMedia(state) {
-      state.getMedia = (path) => {
-        return `${server}static/${path}`
-      };
     },
     setTimelineDirty(state, isDirty) {
       state.isDirty = isDirty;
@@ -89,7 +83,7 @@ export function post(location, obj, retrieved, type) {
   fetch(server + location, options)
     .then(res => res.json())
     .then(retrieved)
-      .catch(e => console.log(e));
+    .catch(e => console.log(e));
 }
 
 export function getType(media) {

@@ -13,7 +13,7 @@ const storage = multer.diskStorage({
     cb(null, mediaPath)
   },
   filename: (req, file, cb) => {
-    cb(null, file.originalname.toLowerCase())
+    cb(null, file.originalname.toLowerCase().replace(' ', '_'))
   }
 });
 
@@ -24,49 +24,48 @@ app.use('/static', express.static(mediaPath))
 app.use(express.json());
 app.use(cors());
 
-const fixedDuration = 10000;
+const fixedDuration = 5000;
 
 const play = () => {
-  playback.index = (++playback.index) % playback.count;
+  let now = Date.now();
 
-  let cur = state.sequence[playback.index];
+  if (playback.playing) {
+    let deltaTime = now - state.lastUpdate;
 
-  if (cur) {
-    timeout.remaining = cur.duration;
+    playback.time += deltaTime;
+
+    if (playback.time > playback.duration) {
+      playback.index = (++playback.index) % playback.count;
+      playback.time = 0;
+    }
+
+    let cur = state.sequence[playback.index];
+
+    if (cur) {
+      playback.duration = cur.duration;
+    }
   }
 
-  timeout.current = setTimeout(play, timeout.remaining);
-  timeout.lastUpdate = Date.now();
+  setTimeout(play, 1000);
+  state.lastUpdate = now;
 }
 
 const playback = {
   playing: true,
+  refresh: false,
   index: 0,
   count: 0,
+  duration: 0,
+  time: 0,
   id: 0,
 };
 
 const state = {
-  sequence: []
-}
-
-const timeout = {
-  current: undefined,
+  sequence: [],
   lastUpdate: Date.now(),
 }
 
 app.get("/toggle", (req, res) => {
-  if (playback.playing && timeout.current != undefined) {
-    clearTimeout(timeout.current);
-
-    let now = Date.now();
-
-    timeout.remaining -= (now - timeout.lastUpdate);
-    timeout.lastUpdate = now;
-  } else {
-    timeout.current = setTimeout(play, timeout.remaining);
-  }
-
   playback.playing = !playback.playing;
 
   res.json(playback);
@@ -83,16 +82,6 @@ app.post("/seek", (req, res) => {
 
   if (playback.index < 0) {
     playback.index = playback.count - 1;
-  }
-
-  if (timeout.current) {
-    clearTimeout(timeout.current);
-  }
-
-  playback.remaining = fixedDuration;
-
-  if (playback.playing) {
-    timeout.current = setTimeout(play, playback.remaining);
   }
 
   res.json(playback);
@@ -112,6 +101,13 @@ const setSequence = (res) => {
     playback.index = 0;
     playback.count = res.sequence.length;
     playback.id++;
+
+    let cur = state.sequence[playback.index];
+
+    if (cur) {
+      playback.duration = cur.duration;
+    }
+
     state.sequence = res.sequence;
   }
 }
@@ -121,7 +117,7 @@ const formatMedia = media => {
 
   return new Promise((resolve) => {
     if (type.startsWith('video')) {
-      exec(`ffmpeg -i ${mediaPath}${media} 2>&1 | grep Duration | awk '{print $2}' | tr -d , | sed s/://g`, (err, dur) => {
+      exec(`ffmpeg -i ${mediaPath}${media} 2>&1`, (err, dur) => {
         resolve({
           path: media,
           type,
@@ -179,9 +175,9 @@ app.listen(5000, () => {
 
     const sequence = JSON.parse(data.toString());
 
-    setSequence(sequence ? sequence  : { sequence: [] })
+    setSequence(sequence ? sequence : { sequence: [] })
     play();
   });
 
-  console.log('Server started')
+  console.log('Server started. Version 1.1.0')
 })
