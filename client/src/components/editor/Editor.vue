@@ -16,6 +16,8 @@ export default {
     update(e, a) {
       let dest = e.to.id;
 
+      console.log(a);
+
       if (a === "library" && dest === "sequence") {
         // console.log("a");
       } else if (a === "sequence" && dest === "library") {

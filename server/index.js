@@ -5,7 +5,8 @@ const fs = require('fs');
 const mime = require('mime');
 
 const app = express();
-const mediaPath = __dirname + '/media/';
+const storePath = __dirname + '/store/';
+const mediaPath = storePath + 'media/';
 const exec = require('child_process').exec;
 
 const storage = multer.diskStorage({
@@ -160,24 +161,26 @@ app.post('/sequence', (req, res) => {
 
   setSequence(req.body);
 
-  fs.writeFile(__dirname + '/sequence.json', data, () => {
+  fs.writeFile(storePath + 'sequence.json', data, () => {
     res.json(req.body.sequence);
     res.status(200);
-    console.log("JSON data is saved.");
+    console.log(`Sequence has been written to is ${storePath}sequence.json`);
   });
 });
 
 app.listen(5000, () => {
-  fs.readFile(__dirname + '/sequence.json', 'utf-8', (err, data) => {
-    if (err) {
-      throw err;
-    }
+  try {
+    fs.readFile(storePath + 'sequence.json', 'utf-8', (err, data) => {
+      if (!err) {
+        const sequence = JSON.parse(data.toString());
 
-    const sequence = JSON.parse(data.toString());
-
-    setSequence(sequence ? sequence : { sequence: [] })
-    play();
-  });
+        setSequence(sequence ? sequence : { sequence: [] })
+        play();
+      }
+    });
+  } catch (err) {
+    setSequence({ sequence: [] })
+  }
 
   console.log('Server started. Version 1.1.0')
 })

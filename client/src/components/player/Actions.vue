@@ -20,19 +20,24 @@ const { get, post } = require("@/main.js");
 export default {
   data() {
     return {
-      playing: play
+      playing: play,
     };
   },
   methods: {
     togglePause() {
-      get("toggle", res => {
+      get("toggle", (res) => {
         this.playing = res.playing ? play : pause;
       });
     },
     seek(offset) {
       post("seek", JSON.stringify({ offset }), undefined, "application/json");
-    }
-  }
+    },
+  },
+  mounted() {
+    get("playback", (res) => {
+      this.playing = res.playing ? play : pause;
+    });
+  },
 };
 </script>
 

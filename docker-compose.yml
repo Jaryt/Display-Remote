@@ -11,5 +11,7 @@ services:
     image: back-end
     build: ./server/
     restart: always
+    volumes: 
+      - ./store:/app/store
     ports:
     - "5000:5000"
