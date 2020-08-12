@@ -10,7 +10,6 @@ artifact=deployment$version.tar
 rsa=~/.ssh/pi_rsa
 images=(client server)
 location=$PI_USER@$PI_LOCAL
-ENV CGO_ENABLED=0
 deployment=""
 
 echo "Building $app $version for $platform platform."
