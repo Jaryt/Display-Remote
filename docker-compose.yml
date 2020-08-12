@@ -2,15 +2,14 @@ version: "3"
 
 services:
   frontend:
-    image: front-end
+    image: display-remote/client
     build: ./client/
     ports:
     - "8080:80"
 
   backend:
-    image: back-end
+    image: display-remote/server
     build: ./server/
-    restart: always
     volumes: 
       - ./store:/app/store
     ports:
